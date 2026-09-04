@@ -19,4 +19,4 @@ pulls KSP's own assemblies out of a local install rather than checking DLLs into
    `KSPBT_GameRoot` at your KSP install.
 2. `dotnet build HarmonicOrbits.sln`
 
-The build writes an installable mod folder to `GameData/HarmonicOrbits` that you can copy to your GameData.
+The build writes an installable mod folder to `GameData/HarmonicOrbits`.
