@@ -4,9 +4,11 @@ Using harmonic fits to characterize orbits to represent details typically limite
 n-body or tabulated methods.
 
 Bodies in KSP move on conics whose elements are constants. This mod makes each element
-a function of time - a secular polynomial plus a short sum of sinusoids fitted to a real
-ephemeris - so the bodies follow their actual paths without an ephemeris table or an
-n-body integrator. Validity runs 1951-2051.
+a function of time (a polynomial plus a short sum of sinusoids fitted to a real
+ephemeris) so the bodies follow their actual paths without an ephemeris table or an
+n-body integrator.
+
+Elements are expected to be valid from 1951-2051 but can extend much longer without severe error.
 
 ## Building
 
@@ -17,8 +19,4 @@ pulls KSP's own assemblies out of a local install rather than checking DLLs into
    `KSPBT_GameRoot` at your KSP install.
 2. `dotnet build HarmonicOrbits.sln`
 
-The build writes an installable mod folder to `GameData/HarmonicOrbits` (gitignored):
-the plugin, its `.version` file, and everything under `Resources/`.
-
-`$(Version)` in `Directory.Build.props` is the only place the version is written; the
-assembly attributes, `[KSPAssembly]`, and the `.version` file are all generated from it.
+The build writes an installable mod folder to `GameData/HarmonicOrbits` that you can copy to your GameData.
