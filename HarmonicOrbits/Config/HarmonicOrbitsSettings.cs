@@ -20,6 +20,14 @@ namespace HarmonicOrbits
         /// <summary>Defaults if the node is missing or malformed.</summary>
         public static HarmonicOrbitsSettings Load()
         {
+            using (HarmonicOrbitsProfiler.LoadSettings.Sample())
+            {
+                return LoadCore();
+            }
+        }
+
+        private static HarmonicOrbitsSettings LoadCore()
+        {
             var settings = new HarmonicOrbitsSettings();
             ConfigNode[] nodes = GameDatabase.Instance.GetConfigNodes(NodeName);
             if (nodes == null || nodes.Length == 0)

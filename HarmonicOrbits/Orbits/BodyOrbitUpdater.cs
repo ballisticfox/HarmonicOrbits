@@ -21,6 +21,15 @@ namespace HarmonicOrbits
         public static int Rebuild(ModelRegistry models, HarmonicOrbitsSettings settings,
             IList<CelestialBody> bodies)
         {
+            using (HarmonicOrbitsProfiler.Rebuild.Sample())
+            {
+                return RebuildCore(models, settings, bodies);
+            }
+        }
+
+        private static int RebuildCore(ModelRegistry models, HarmonicOrbitsSettings settings,
+            IList<CelestialBody> bodies)
+        {
             Driven.Clear();
             Parents.Clear();
             if (models == null || settings == null || bodies == null)
@@ -91,7 +100,10 @@ namespace HarmonicOrbits
             {
                 return false;
             }
-            OrbitWriter.Write(body.orbit, model, ut, _outsideWindow);
+            using (HarmonicOrbitsProfiler.OrbitWrite.Sample())
+            {
+                OrbitWriter.Write(body.orbit, model, ut, _outsideWindow);
+            }
             return true;
         }
     }

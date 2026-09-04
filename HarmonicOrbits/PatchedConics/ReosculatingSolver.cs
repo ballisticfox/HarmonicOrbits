@@ -61,6 +61,15 @@ namespace HarmonicOrbits
         private static bool CalculatePatch(Orbit p, Orbit nextPatch, double startEpoch,
             PatchedConics.SolverParameters pars, CelestialBody targetBody)
         {
+            using (HarmonicOrbitsProfiler.CalculatePatch.Sample())
+            {
+                return Solve(p, nextPatch, startEpoch, pars, targetBody);
+            }
+        }
+
+        private static bool Solve(Orbit p, Orbit nextPatch, double startEpoch,
+            PatchedConics.SolverParameters pars, CelestialBody targetBody)
+        {
             // Two ways a driven body can matter here: arriving at one that orbits this
             // parent, or leaving one. Anything else can never be improved, so settle that
             // before paying for a solve.
@@ -81,7 +90,11 @@ namespace HarmonicOrbits
             try
             {
                 BodyOrbitUpdater.Apply(entered, crossing);
-                bool more = _stock(p, nextPatch, startEpoch, pars, targetBody);
+                bool more;
+                using (HarmonicOrbitsProfiler.CalculatePatchFinal.Sample())
+                {
+                    more = _stock(p, nextPatch, startEpoch, pars, targetBody);
+                }
                 Warm[p] = new Crossing { Body = entered, Ut = p.UTsoi };
                 return more;
             }
@@ -160,7 +173,12 @@ namespace HarmonicOrbits
 
             Orbit probe = new Orbit(p) { StartUT = p.StartUT, EndUT = p.EndUT };
             Orbit probeNext = new Orbit();
-            if (!_stock(probe, probeNext, startEpoch, pars, targetBody))
+            bool solved;
+            using (HarmonicOrbitsProfiler.CalculatePatchProbe.Sample())
+            {
+                solved = _stock(probe, probeNext, startEpoch, pars, targetBody);
+            }
+            if (!solved)
             {
                 return false;
             }

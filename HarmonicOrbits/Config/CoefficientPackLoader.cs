@@ -12,6 +12,14 @@ namespace HarmonicOrbits
         /// <summary>Reads all packs; returns an empty registry if none load.</summary>
         public static ModelRegistry LoadAll()
         {
+            using (HarmonicOrbitsProfiler.LoadPack.Sample())
+            {
+                return LoadAllCore();
+            }
+        }
+
+        private static ModelRegistry LoadAllCore()
+        {
             var registry = new ModelRegistry();
             string dir = PackDirectory();
             if (!Directory.Exists(dir))

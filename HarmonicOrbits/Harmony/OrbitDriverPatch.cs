@@ -12,11 +12,14 @@ namespace HarmonicOrbits
         // ReSharper disable once InconsistentNaming
         private static void Prefix(OrbitDriver __instance)
         {
-            if (BodyOrbitUpdater.Count == 0 || Planetarium.fetch == null)
+            using (HarmonicOrbitsProfiler.OrbitUpdate.Sample())
             {
-                return;
+                if (BodyOrbitUpdater.Count == 0 || Planetarium.fetch == null)
+                {
+                    return;
+                }
+                BodyOrbitUpdater.Apply(__instance.celestialBody, Planetarium.fetch.time);
             }
-            BodyOrbitUpdater.Apply(__instance.celestialBody, Planetarium.fetch.time);
         }
     }
 }
