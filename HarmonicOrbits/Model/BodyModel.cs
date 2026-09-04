@@ -73,6 +73,19 @@ namespace HarmonicOrbits
             }
         }
 
+        /// <summary>Sidereal orbital period in seconds, from the secular mean-longitude rate.</summary>
+        // Not 2*pi*sqrt(a^3/GM): that reads the osculating a, which swings 8,000 km for the
+        // Moon and drags the period 21 hours with it. A tidally locked body spins uniformly,
+        // so the mean rate is the physical one.
+        public double MeanOrbitalPeriod()
+        {
+            ElementSeries lambda = _series[IndexLambda];
+            double t0 = ModelEpoch.ToModelTime(ValidityWindow.StartUt, EpochJd);
+            double t1 = ModelEpoch.ToModelTime(ValidityWindow.EndUt, EpochJd);
+            double degreesPerDay = (lambda.Evaluate(t1) - lambda.Evaluate(t0)) / (t1 - t0);
+            return 360.0 / degreesPerDay * ModelEpoch.SecondsPerDay;
+        }
+
         /// <summary>Elements at <paramref name="t"/> days after the epoch.</summary>
         public EquinoctialElements Evaluate(double t)
         {

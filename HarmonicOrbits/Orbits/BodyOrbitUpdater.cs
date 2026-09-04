@@ -34,9 +34,24 @@ namespace HarmonicOrbits
                     && models.TryGet(body.bodyName, out BodyModel model))
                 {
                     Driven[body] = model;
+                    PinRotationPeriod(body, model);
                 }
             }
             return Driven.Count;
+        }
+
+        /// <summary>Gives a tidally locked body a fixed spin rate instead of a derived one.</summary>
+        // CBUpdate derives rotationPeriod from orbit.period, which follows the osculating a;
+        // UT/period is ~423 revolutions for the Moon, so a 1% wobble becomes hundreds of
+        // degrees of spin. We clear the tidallyLocked tidally locked flag and compute our own period.
+        private static void PinRotationPeriod(CelestialBody body, BodyModel model)
+        {
+            if (!body.tidallyLocked)
+            {
+                return;
+            }
+            body.tidallyLocked = false;
+            body.rotationPeriod = model.MeanOrbitalPeriod();
         }
 
         public static void Clear()
