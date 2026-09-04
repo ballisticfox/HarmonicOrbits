@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>HarmonicOrbits</AssemblyName>
+    <RootNamespace>HarmonicOrbits</RootNamespace>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="KSPBuildTools" Version="1.1.1" />
+  </ItemGroup>
+
+  <!-- Generated into GameData, which is gitignored; see .gitignore -->
+  <ItemGroup>
+    <KSPVersionFile Include=".">
+      <Destination>$(KSPBT_ModRoot)/HarmonicOrbits.version</Destination>
+      <URL>https://github.com/ballisticfox/HarmonicOrbits/releases/latest/download/HarmonicOrbits.version</URL>
+      <Download>https://github.com/ballisticfox/HarmonicOrbits/releases/latest</Download>
+    </KSPVersionFile>
+  </ItemGroup>
+
+  <!-- Ship the non-code half of the mod alongside the DLLs so GameData/HarmonicOrbits
+       is installable as-is -->
+  <ItemGroup>
+    <HarmonicOrbitsResource Include="$(MSBuildThisFileDirectory)../Resources/**/*" />
+  </ItemGroup>
+
+  <Target Name="HarmonicOrbitsCopyResources" AfterTargets="KSPBT_CopyDLLsToPluginFolder"
+          Inputs="@(HarmonicOrbitsResource)"
+          Outputs="@(HarmonicOrbitsResource->'$(KSPBT_ModRoot)/%(RecursiveDir)%(Filename)%(Extension)')">
+    <Copy SourceFiles="@(HarmonicOrbitsResource)" DestinationFolder="$(KSPBT_ModRoot)/%(RecursiveDir)" />
+  </Target>
+
+</Project>

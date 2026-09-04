@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!--
+    KSPBuildTools looks for user-local configuration at
+    $(SolutionDir)$(SolutionName).props.user. Neither variable is set when a project
+    is built on its own (`dotnet build HarmonicOrbits/HarmonicOrbits.csproj`, or an
+    editor's LSP tooling), so pin fallbacks here; building the .sln overrides both.
+  -->
+  <PropertyGroup>
+    <SolutionDir Condition=" '$(SolutionDir)' == '' ">$(MSBuildThisFileDirectory)</SolutionDir>
+    <SolutionName Condition=" '$(SolutionName)' == '' ">HarmonicOrbits</SolutionName>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <PlatformTarget>x64</PlatformTarget>
+    <Deterministic>true</Deterministic>
+    <IsPackable>false</IsPackable>
+
+    <!-- One source of truth for the version: the SDK writes the assembly attributes,
+         KSPBuildTools writes [KSPAssembly] and the .version file, all from $(Version). -->
+    <Version>0.1.0</Version>
+
+    <!-- CKAN is not part of this toolchain; dependencies come from the local KSP install -->
+    <KSPBT_InstallCKANDependencies>false</KSPBT_InstallCKANDependencies>
+
+    <KSPBT_ModRoot>$(MSBuildThisFileDirectory)GameData/HarmonicOrbits</KSPBT_ModRoot>
+    <KSPBT_ModPluginFolder>Plugins</KSPBT_ModPluginFolder>
+  </PropertyGroup>
+
+</Project>

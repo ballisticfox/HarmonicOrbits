@@ -1,0 +1,11 @@
+*.user
+*.userprefs
+*.nupkg
+.vs/
+.idea
+.DotSettings
+
+bin/
+obj/
+
+GameData/
