@@ -13,7 +13,7 @@ namespace HarmonicOrbits
             new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
 
         public bool Enabled = true;
-        public bool ReosculateEncounters;
+        public bool ReosculateEncounters = true;
         public bool DumpModels;
         public OutsideWindowAction OutsideWindow = OutsideWindowAction.Continue;
 

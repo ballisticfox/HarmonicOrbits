@@ -24,6 +24,7 @@ namespace HarmonicOrbits
         private void OnLevelLoaded(GameScenes scene)
         {
             BodyOrbitUpdater.Clear();
+            ReosculatingSolver.Forget();
             if (!EnsureLoaded() || !Settings.Enabled)
             {
                 return;
@@ -34,7 +35,12 @@ namespace HarmonicOrbits
                 return;
             }
 
-            int driven = BodyOrbitUpdater.Rebuild(Models, Settings);
+            int driven = BodyOrbitUpdater.Rebuild(Models, Settings, FlightGlobals.Bodies);
+            if (driven > 0 && Settings.ReosculateEncounters)
+            {
+                ReosculatingSolver.Install();
+            }
+
             if (driven == 0)
             {
                 Debug.LogError("[HarmonicOrbits]: no bodies matched; " + Models.Count
