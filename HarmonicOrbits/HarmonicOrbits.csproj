@@ -11,7 +11,21 @@
     <PackageReference Include="KSPBuildTools" Version="1.1.1" />
   </ItemGroup>
 
-  <!-- Generated into GameData, which is gitignored; see .gitignore -->
+  <ItemGroup>
+    <ModReference Include="0Harmony">
+      <DLLPath>GameData/000_Harmony/0Harmony.dll</DLLPath>
+      <KSPAssemblyVersion>0.0</KSPAssemblyVersion>
+    </ModReference>
+    <ModReference Include="Kopernicus">
+      <DLLPath>GameData/Kopernicus/Plugins/Kopernicus.dll</DLLPath>
+      <KSPAssemblyVersion>1.0</KSPAssemblyVersion>
+    </ModReference>
+    <ModReference Include="Kopernicus.Parser">
+      <DLLPath>GameData/Kopernicus/Plugins/Kopernicus.Parser.dll</DLLPath>
+      <KSPAssemblyVersion>1.0</KSPAssemblyVersion>
+    </ModReference>
+  </ItemGroup>
+
   <ItemGroup>
     <KSPVersionFile Include=".">
       <Destination>$(KSPBT_ModRoot)/HarmonicOrbits.version</Destination>
@@ -20,8 +34,6 @@
     </KSPVersionFile>
   </ItemGroup>
 
-  <!-- Ship the non-code half of the mod alongside the DLLs so GameData/HarmonicOrbits
-       is installable as-is -->
   <ItemGroup>
     <HarmonicOrbitsResource Include="$(MSBuildThisFileDirectory)../Resources/**/*" />
   </ItemGroup>
