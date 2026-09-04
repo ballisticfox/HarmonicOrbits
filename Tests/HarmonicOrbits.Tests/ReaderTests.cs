@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Xunit;
 
 namespace HarmonicOrbits.Verification
@@ -9,11 +10,12 @@ namespace HarmonicOrbits.Verification
     {
         private static readonly string[] Names = ["a", "h", "k", "p", "q", "lam"];
 
-        [Fact]
-        public void PackHeaderMatchesTheGoldenFile()
+        [Theory]
+        [MemberData(nameof(Fixture.AllBodies), MemberType = typeof(Fixture))]
+        public void PackHeaderMatchesTheGoldenFile(string body)
         {
-            List<BodyModel> bodies = Fixture.ReadPack(Fixture.Body);
-            Golden g = Fixture.ReadGolden(Fixture.Body);
+            List<BodyModel> bodies = Fixture.ReadPack(body);
+            Golden g = Fixture.ReadGolden(body);
 
             Assert.Single(bodies);
             BodyModel m = bodies[0];
@@ -23,11 +25,12 @@ namespace HarmonicOrbits.Verification
             Assert.Equal(g.Gm, m.GravParameter);
         }
 
-        [Fact]
-        public void EveryCoefficientRoundTripsBitForBit()
+        [Theory]
+        [MemberData(nameof(Fixture.AllBodies), MemberType = typeof(Fixture))]
+        public void EveryCoefficientRoundTripsBitForBit(string body)
         {
-            BodyModel m = Fixture.ReadPack(Fixture.Body)[0];
-            Golden g = Fixture.ReadGolden(Fixture.Body);
+            BodyModel m = Fixture.ReadPack(body)[0];
+            Golden g = Fixture.ReadGolden(body);
 
             for (int i = 0; i < BodyModel.ElementCount; i++)
             {
@@ -47,12 +50,23 @@ namespace HarmonicOrbits.Verification
             }
         }
 
-        [Fact]
-        public void PackIsWithinTheSizeBudget()
+        [Theory]
+        [MemberData(nameof(Fixture.AllBodies), MemberType = typeof(Fixture))]
+        public void PackIsWithinTheSizeBudget(string body)
         {
-            // Moon is ~914 doubles, 7.1 KB payload.
-            long bytes = new FileInfo(Fixture.PackPath(Fixture.Body)).Length;
-            Assert.InRange(bytes, 7000, 9000);
+            // Per body: 2.7 KB (Mercury, 18 terms) to 7.2 KB (Earth, 50).
+            long bytes = new FileInfo(Fixture.PackPath(body)).Length;
+            Assert.InRange(bytes, 1000, 12000);
+        }
+
+        [Fact]
+        public void WholePackageStaysSmallerThanAnEphemerisTable()
+        {
+            // The premise of the whole mod: if the coefficients were not far
+            // smaller than tabulated states, shipping the table would be easier.
+            long total = Fixture.ShippedBodies
+                .Sum(b => new FileInfo(Fixture.PackPath(b)).Length);
+            Assert.InRange(total, 1000, 64 * 1024);
         }
 
         [Fact]

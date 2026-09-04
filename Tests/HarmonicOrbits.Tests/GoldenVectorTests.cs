@@ -13,11 +13,12 @@ namespace HarmonicOrbits.Verification
 
         private readonly ITestOutputHelper _out = output;
 
-        [Fact]
-        public void EquinoctialSeriesMatchThePythonReference()
+        [Theory]
+        [MemberData(nameof(Fixture.AllBodies), MemberType = typeof(Fixture))]
+        public void EquinoctialSeriesMatchThePythonReference(string body)
         {
-            BodyModel m = Fixture.ReadPack(Fixture.Body)[0];
-            Golden g = Fixture.ReadGolden(Fixture.Body);
+            BodyModel m = Fixture.ReadPack(body)[0];
+            Golden g = Fixture.ReadGolden(body);
 
             double worst = 0.0;
             string worstWhere = "none";
@@ -33,18 +34,19 @@ namespace HarmonicOrbits.Verification
                 worst = Track(worst, ref worstWhere, "lam", s.T, s.Equinoctial["lam"], e.Lambda);
             }
 
-            _out.WriteLine("{0} samples, worst relative error {1:E3} at {2}",
-                g.Samples.Count, worst, worstWhere);
+            _out.WriteLine("{0}: {1} samples, worst relative error {2:E3} at {3}",
+                body, g.Samples.Count, worst, worstWhere);
             Assert.True(worst < Tolerance, string.Format(
                 "worst relative error {0:E3} at {1}, tolerance {2:E0}",
                 worst, worstWhere, Tolerance));
         }
 
-        [Fact]
-        public void ClassicalElementsMatchThePythonReference()
+        [Theory]
+        [MemberData(nameof(Fixture.AllBodies), MemberType = typeof(Fixture))]
+        public void ClassicalElementsMatchThePythonReference(string body)
         {
-            BodyModel m = Fixture.ReadPack(Fixture.Body)[0];
-            Golden g = Fixture.ReadGolden(Fixture.Body);
+            BodyModel m = Fixture.ReadPack(body)[0];
+            Golden g = Fixture.ReadGolden(body);
 
             double worst = 0.0;
             string worstWhere = "none";
@@ -66,19 +68,20 @@ namespace HarmonicOrbits.Verification
                     s.Classical["meanAnomaly"], c.MeanAnomaly);
             }
 
-            _out.WriteLine("{0} samples, worst relative error {1:E3} at {2}",
-                g.Samples.Count, worst, worstWhere);
+            _out.WriteLine("{0}: {1} samples, worst relative error {2:E3} at {3}",
+                body, g.Samples.Count, worst, worstWhere);
             Assert.True(worst < Tolerance, string.Format(
                 "worst relative error {0:E3} at {1}, tolerance {2:E0}",
                 worst, worstWhere, Tolerance));
         }
 
-        [Fact]
-        public void UniversalTimeEntryPointAgreesWithModelTime()
+        [Theory]
+        [MemberData(nameof(Fixture.AllBodies), MemberType = typeof(Fixture))]
+        public void UniversalTimeEntryPointAgreesWithModelTime(string body)
         {
             // UT entry point must agree with model-time path.
-            BodyModel m = Fixture.ReadPack(Fixture.Body)[0];
-            Golden g = Fixture.ReadGolden(Fixture.Body);
+            BodyModel m = Fixture.ReadPack(body)[0];
+            Golden g = Fixture.ReadGolden(body);
 
             double worst = 0.0;
             string where = "none";
@@ -90,15 +93,16 @@ namespace HarmonicOrbits.Verification
                 worst = Track(worst, ref where, "lam(ut)", s.Ut,
                     s.Classical["meanAnomaly"], c.MeanAnomaly);
             }
-            _out.WriteLine("worst relative error via UT: {0:E3} at {1}", worst, where);
+            _out.WriteLine("{0}: worst relative error via UT: {1:E3} at {2}", body, worst, where);
             Assert.True(worst < Tolerance, "UT entry point diverged: " + where);
         }
 
-        [Fact]
-        public void GoldenSamplesCoverTheShippedWindow()
+        [Theory]
+        [MemberData(nameof(Fixture.AllBodies), MemberType = typeof(Fixture))]
+        public void GoldenSamplesCoverTheShippedWindow(string body)
         {
             // Secular-term errors grow toward the edges of the window.
-            Golden g = Fixture.ReadGolden(Fixture.Body);
+            Golden g = Fixture.ReadGolden(body);
             Assert.True(g.Samples.Count >= 200, "expected at least 200 samples");
 
             double firstUt = g.Samples[0].Ut;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 
 namespace HarmonicOrbits.Verification
@@ -9,6 +10,21 @@ namespace HarmonicOrbits.Verification
     public static class Fixture
     {
         public const string Body = "moon";
+
+        /// <summary>Every body with a shipped pack.</summary>
+        // Enumerated rather than listed: exporting a new pack puts it under the
+        // golden-vector tests without editing this file, and a pack that ships
+        // without a fixture fails loudly instead of going unnoticed.
+        public static IEnumerable<string> ShippedBodies =>
+            Directory.EnumerateFiles(PackDir, "*.bin")
+                .Select(Path.GetFileNameWithoutExtension)
+                .OrderBy(n => n, StringComparer.Ordinal);
+
+        /// <summary>MemberData source over <see cref="ShippedBodies"/>.</summary>
+        public static IEnumerable<object[]> AllBodies =>
+            ShippedBodies.Select(b => new object[] { b });
+
+        public static string PackDir => Path.Combine(RepoRoot, "Resources", "Bodies");
 
         /// <summary>Repository root.</summary>
         public static string RepoRoot
@@ -31,7 +47,7 @@ namespace HarmonicOrbits.Verification
 
         public static string PackPath(string body)
         {
-            return Path.Combine(RepoRoot, "Resources", "Bodies", body + ".bin");
+            return Path.Combine(PackDir, body + ".bin");
         }
 
         public static string GoldenPath(string body)
