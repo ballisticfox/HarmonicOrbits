@@ -61,9 +61,11 @@ namespace HarmonicOrbits
         private static bool CalculatePatch(Orbit p, Orbit nextPatch, double startEpoch,
             PatchedConics.SolverParameters pars, CelestialBody targetBody)
         {
-            // Most patches orbit a parent with nothing driven under it and can never be
-            // improved, so settle that before paying for a solve.
-            if (!BodyOrbitUpdater.HasDrivenChildren(p.referenceBody))
+            // Two ways a driven body can matter here: arriving at one that orbits this
+            // parent, or leaving one. Anything else can never be improved, so settle that
+            // before paying for a solve.
+            if (!BodyOrbitUpdater.HasDrivenChildren(p.referenceBody)
+                && !BodyOrbitUpdater.IsDriven(p.referenceBody))
             {
                 return _stock(p, nextPatch, startEpoch, pars, targetBody);
             }
@@ -158,15 +160,31 @@ namespace HarmonicOrbits
 
             Orbit probe = new Orbit(p) { StartUT = p.StartUT, EndUT = p.EndUT };
             Orbit probeNext = new Orbit();
-            if (!_stock(probe, probeNext, startEpoch, pars, targetBody)
-                || probe.patchEndTransition != Orbit.PatchTransitionType.ENCOUNTER)
+            if (!_stock(probe, probeNext, startEpoch, pars, targetBody))
             {
                 return false;
             }
 
-            // nextPatch.referenceBody rather than closestEncounterBody: the latter tracks the
-            // nearest approach of any body, which need not be the one entered.
-            CelestialBody body = probeNext.referenceBody;
+            CelestialBody body;
+            switch (probe.patchEndTransition)
+            {
+                // nextPatch.referenceBody rather than closestEncounterBody: the latter tracks
+                // the nearest approach of any body, which need not be the one entered.
+                case Orbit.PatchTransitionType.ENCOUNTER:
+                    body = probeNext.referenceBody;
+                    break;
+
+                // Leaving a driven body. UpdateFromOrbitAtUT builds the parent-relative patch
+                // as vessel + body state at the crossing, velocity included, so a stale
+                // conic offsets the whole departure and moves the far periapsis.
+                case Orbit.PatchTransitionType.ESCAPE:
+                    body = probe.referenceBody;
+                    break;
+
+                default:
+                    return false;
+            }
+
             if (body == null || !BodyOrbitUpdater.IsDriven(body))
             {
                 return false;
