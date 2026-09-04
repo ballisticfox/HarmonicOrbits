@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Reflection;
+using UnityEngine;
 
 namespace HarmonicOrbits
 {
@@ -15,11 +16,14 @@ namespace HarmonicOrbits
         {
             Singleton = this;
             DontDestroyOnLoad(this);
+
+            new HarmonyLib.Harmony("HarmonicOrbits").PatchAll(Assembly.GetExecutingAssembly());
             GameEvents.onLevelWasLoaded.Add(OnLevelLoaded);
         }
 
         private void OnLevelLoaded(GameScenes scene)
         {
+            BodyOrbitUpdater.Clear();
             if (!EnsureLoaded() || !Settings.Enabled)
             {
                 return;
@@ -29,7 +33,17 @@ namespace HarmonicOrbits
             {
                 return;
             }
-            ApplyAll();
+
+            int driven = BodyOrbitUpdater.Rebuild(Models, Settings);
+            if (driven == 0)
+            {
+                Debug.LogError("[HarmonicOrbits]: no bodies matched; " + Models.Count
+                    + " model(s) loaded, check the BODY names in the config");
+            }
+            else if (Settings.DumpModels)
+            {
+                Debug.Log("[HarmonicOrbits]: driving " + driven + " body/bodies in " + scene);
+            }
         }
 
         // GameDatabase holds no configs at Startup.Instantly, so settings and packs load on
@@ -52,48 +66,6 @@ namespace HarmonicOrbits
                 ModelDump.Log(Models);
             }
             return true;
-        }
-
-        /// <summary>Writes each enabled body's elements at the current UT.</summary>
-        // Phase 2 only: written once per scene, then left to drift. Phase 3 replaces this
-        // with a per-FixedUpdate rewrite.
-        public void ApplyAll()
-        {
-            if (Models == null || FlightGlobals.Bodies == null || HighLogic.CurrentGame == null)
-            {
-                return;
-            }
-
-            double ut = Planetarium.GetUniversalTime();
-            int applied = 0;
-            for (int i = 0; i < FlightGlobals.Bodies.Count; i++)
-            {
-                CelestialBody body = FlightGlobals.Bodies[i];
-                if (body == null || body.orbitDriver == null || body.orbit == null)
-                {
-                    continue;
-                }
-
-                if (!Settings.IsBodyEnabled(body.bodyName)
-                    || !Models.TryGet(body.bodyName, out BodyModel model))
-                {
-                    continue;
-                }
-
-                OrbitWriter.Write(body.orbit, model, ut, Settings.OutsideWindow);
-                body.orbitDriver.UpdateOrbit();
-                applied++;
-            }
-
-            if (applied == 0)
-            {
-                Debug.LogError("[HarmonicOrbits]: no bodies matched; "
-                    + Models.Count + " model(s) loaded, check the BODY names in the config");
-            }
-            else if (Settings.DumpModels)
-            {
-                Debug.Log("[HarmonicOrbits]: applied " + applied + " body/bodies at UT " + ut);
-            }
         }
     }
 }

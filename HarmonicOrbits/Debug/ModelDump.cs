@@ -34,12 +34,20 @@ namespace HarmonicOrbits
                 sb.AppendLine();
             }
 
+            // Angles normalised so they can be compared against a Kopernicus Orbit node.
             ClassicalElements c = model.EvaluateAtUniversalTime(0.0);
             sb.AppendFormat("    at UT 0: a={0:F3} km e={1:F8} inc={2:F6} lan={3:F6} "
                 + "argPe={4:F6} M={5:F6}",
                 c.SemiMajorAxis, c.Eccentricity, c.Inclination,
-                c.LongitudeOfAscendingNode, c.ArgumentOfPeriapsis, c.MeanAnomaly);
+                Norm(c.LongitudeOfAscendingNode), Norm(c.ArgumentOfPeriapsis),
+                Norm(c.MeanAnomaly));
             return sb.ToString();
+        }
+
+        private static double Norm(double deg)
+        {
+            double d = deg % 360.0;
+            return d < 0.0 ? d + 360.0 : d;
         }
     }
 }
