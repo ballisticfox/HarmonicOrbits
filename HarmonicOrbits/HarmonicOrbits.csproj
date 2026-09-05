@@ -5,7 +5,24 @@
     <AssemblyName>HarmonicOrbits</AssemblyName>
     <RootNamespace>HarmonicOrbits</RootNamespace>
     <OutputType>Library</OutputType>
+    <!-- BurstEvaluator packs coefficients into unmanaged memory and hands Burst raw pointers. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+
+  <!--
+    [KSPAssemblyDependency("KSPBurst")] opts into AOT compilation; [BurstCompile] alone does
+    not. Without it CompileFunctionPointer fails in a player build that cannot JIT.
+    Compiles against Unity.Burst.dll but advertises under KSPBurst (the [KSPAssembly] holder).
+  -->
+  <ItemGroup>
+    <Reference Include="KSPBurst">
+      <HintPath>$(KSPBT_GameRoot)/GameData/000_KSPBurst/Plugins/Unity.Burst.dll</HintPath>
+      <Private>false</Private>
+      <KSPAssemblyName>KSPBurst</KSPAssemblyName>
+      <KSPAssemblyVersion>1.5.5</KSPAssemblyVersion>
+      <GenerateDependencyAttribute>true</GenerateDependencyAttribute>
+    </Reference>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="KSPBuildTools" Version="1.1.1" />

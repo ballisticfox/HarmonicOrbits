@@ -20,6 +20,9 @@ namespace HarmonicOrbits
         public int TermCount => _omegas.Length;
         public int SecularDegree => _secular.Length - 1;
 
+        /// <summary>Coefficients this series occupies in pack order.</summary>
+        public int CoefficientCount => _secular.Length + 1 + 3 * _omegas.Length;
+
 
         public ElementSeries(bool circulating, double[] secular, double constant,
             double[] omegas, double[] cos, double[] sin)
@@ -69,6 +72,30 @@ namespace HarmonicOrbits
         public double Omega(int index)
         {
             return _omegas[index];
+        }
+
+        /// <summary>Copies the coefficients into the destination; returns the count written.</summary>
+        // Pack order is secular, constant, omegas, cos, sin -- the layout the accelerated
+        // backend indexes. Kept here so only this class knows how a series is laid out.
+        public int CopyTo(double[] dest, int offset)
+        {
+            if (dest == null) throw new ArgumentNullException("dest");
+            if (offset < 0 || dest.Length - offset < CoefficientCount)
+            {
+                throw new ArgumentException("destination is too small for this series");
+            }
+
+            int at = offset;
+            Array.Copy(_secular, 0, dest, at, _secular.Length);
+            at += _secular.Length;
+            dest[at++] = _constant;
+            Array.Copy(_omegas, 0, dest, at, _omegas.Length);
+            at += _omegas.Length;
+            Array.Copy(_cos, 0, dest, at, _cos.Length);
+            at += _cos.Length;
+            Array.Copy(_sin, 0, dest, at, _sin.Length);
+            at += _sin.Length;
+            return at - offset;
         }
     }
 }

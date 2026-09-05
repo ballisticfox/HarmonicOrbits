@@ -46,9 +46,12 @@ namespace HarmonicOrbits
                 Debug.LogError("[HarmonicOrbits]: no bodies matched; " + Models.Count
                     + " model(s) loaded, check the BODY names in the config");
             }
-            else if (Settings.DumpModels)
+            else
             {
-                Debug.Log("[HarmonicOrbits]: driving " + driven + " body/bodies in " + scene);
+                // Always logged: evaluator choice determines frame cost and varies by machine.
+                Debug.Log("[HarmonicOrbits]: driving " + driven + " body/bodies in " + scene
+                    + "; evaluator " + (BurstEvaluator.Active ? "Burst" : "managed")
+                    + " (" + BurstEvaluator.Status + ")");
             }
         }
 

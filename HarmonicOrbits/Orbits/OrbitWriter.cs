@@ -16,7 +16,10 @@ namespace HarmonicOrbits
             // advances mean anomaly from there.
             ut = ValidityWindow.EvaluationTime(ut, outsideWindow);
 
-            var e = KspElements.From(model.EvaluateAtUniversalTime(ut));
+            // Returns the compiled result when armed, the model's own otherwise.
+            EquinoctialElements eq = BurstEvaluator.Evaluate(
+                model, ModelEpoch.ToModelTime(ut, model.EpochJd));
+            var e = KspElements.From(eq.ToClassical());
             orbit.SetOrbit(
                 e.Inclination,
                 e.Eccentricity,

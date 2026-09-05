@@ -67,7 +67,7 @@ namespace HarmonicOrbits
                 int n = 0;
                 for (int i = 0; i < _series.Length; i++)
                 {
-                    n += _series[i].SecularDegree + 2 + 3 * _series[i].TermCount;
+                    n += _series[i].CoefficientCount;
                 }
                 return n;
             }

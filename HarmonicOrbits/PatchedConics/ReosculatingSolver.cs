@@ -70,9 +70,8 @@ namespace HarmonicOrbits
         private static bool Solve(Orbit p, Orbit nextPatch, double startEpoch,
             PatchedConics.SolverParameters pars, CelestialBody targetBody)
         {
-            // Two ways a driven body can matter here: arriving at one that orbits this
-            // parent, or leaving one. Anything else can never be improved, so settle that
-            // before paying for a solve.
+            // A driven body matters when arriving at one orbiting this parent, or leaving
+            // one. Skip everything else.
             if (!BodyOrbitUpdater.HasDrivenChildren(p.referenceBody)
                 && !BodyOrbitUpdater.IsDriven(p.referenceBody))
             {
@@ -113,8 +112,8 @@ namespace HarmonicOrbits
             entered = null;
             crossing = 0.0;
 
-            // Re-solved every frame, so last frame's crossing usually confirms in one probe.
-            // A stale one fails the check and falls through to the cold path.
+            // Last frame's crossing usually confirms in one probe; a stale one falls through
+            // to the cold path.
             if (Warm.TryGetValue(p, out Crossing warm) && BodyOrbitUpdater.IsDriven(warm.Body)
                 && warm.Ut > now)
             {
@@ -192,9 +191,8 @@ namespace HarmonicOrbits
                     body = probeNext.referenceBody;
                     break;
 
-                // Leaving a driven body. UpdateFromOrbitAtUT builds the parent-relative patch
-                // as vessel + body state at the crossing, velocity included, so a stale
-                // conic offsets the whole departure and moves the far periapsis.
+                // UpdateFromOrbitAtUT builds the escape patch from vessel + body state at the
+                // crossing, so a stale conic offsets the departure and moves the far periapsis.
                 case Orbit.PatchTransitionType.ESCAPE:
                     body = probe.referenceBody;
                     break;

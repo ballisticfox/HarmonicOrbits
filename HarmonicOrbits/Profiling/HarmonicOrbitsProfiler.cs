@@ -41,6 +41,9 @@ namespace HarmonicOrbits
         /// <summary>Resolving which bodies this scene drives.</summary>
         internal static readonly HarmonicMarker Rebuild = Marker("Rebuild");
 
+        /// <summary>Compiling and verifying the Burst evaluator.</summary>
+        internal static readonly HarmonicMarker BurstCompile = Marker("Burst.Compile");
+
         #endregion
 
         private static HarmonicMarker Marker(string name)

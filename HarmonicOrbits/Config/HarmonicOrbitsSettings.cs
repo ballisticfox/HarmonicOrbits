@@ -15,6 +15,7 @@ namespace HarmonicOrbits
         public bool Enabled = true;
         public bool ReosculateEncounters = true;
         public bool DumpModels;
+        public bool UseBurst = true;
         public OutsideWindowAction OutsideWindow = OutsideWindowAction.Continue;
 
         /// <summary>Defaults if the node is missing or malformed.</summary>
@@ -41,6 +42,7 @@ namespace HarmonicOrbits
             settings.ReosculateEncounters =
                 ReadBool(node, "reosculateEncounters", settings.ReosculateEncounters);
             settings.DumpModels = ReadBool(node, "dumpModels", settings.DumpModels);
+            settings.UseBurst = ReadBool(node, "useBurst", settings.UseBurst);
 
             string action = node.GetValue("outsideWindow");
             if (!string.IsNullOrEmpty(action))

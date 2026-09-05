@@ -53,13 +53,22 @@ namespace HarmonicOrbits
                     PinRotationPeriod(body, model);
                 }
             }
+
+            if (settings.UseBurst)
+            {
+                BurstEvaluator.Build(Driven.Values);
+            }
+            else
+            {
+                BurstEvaluator.Disable("disabled by useBurst");
+            }
             return Driven.Count;
         }
 
         /// <summary>Gives a tidally locked body a fixed spin rate instead of a derived one.</summary>
         // CBUpdate derives rotationPeriod from orbit.period, which follows the osculating a;
         // UT/period is ~423 revolutions for the Moon, so a 1% wobble becomes hundreds of
-        // degrees of spin. We clear tidallyLocked and compute our own period.
+        // degrees of spin.
         private static void PinRotationPeriod(CelestialBody body, BodyModel model)
         {
             if (!body.tidallyLocked)
@@ -74,6 +83,7 @@ namespace HarmonicOrbits
         {
             Driven.Clear();
             Parents.Clear();
+            BurstEvaluator.Release();
         }
 
         public static bool IsDriven(CelestialBody body)
@@ -82,8 +92,7 @@ namespace HarmonicOrbits
         }
 
         /// <summary>True if any driven body orbits the given parent.</summary>
-        // Lets the encounter solver skip patches it could never improve, which is most of
-        // them, without paying a solve to find out.
+        // Lets the encounter solver skip patches with no driven bodies.
         public static bool HasDrivenChildren(CelestialBody parent)
         {
             return parent != null && Parents.Contains(parent);
